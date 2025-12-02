@@ -5,7 +5,6 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -16,17 +15,6 @@ import (
 	"stu-go/common"
 )
 
-// Config holds runtime configuration values.
-type Config struct {
-	Port         string
-	MySQLDSN     string
-	RedisAddr    string
-	RedisPass    string
-	RedisDB      int
-	ReadTimeout  time.Duration
-	WriteTimeout time.Duration
-}
-
 // App aggregates shared dependencies for handlers.
 type App struct {
 	DB    *sql.DB
@@ -34,7 +22,7 @@ type App struct {
 }
 
 func main() {
-	cfg := loadConfig()
+	cfg := common.LoadConfig()
 
 	db, err := common.OpenMySQL(common.MySQLConfig{DSN: cfg.MySQLDSN})
 	if err != nil {
@@ -77,18 +65,6 @@ func main() {
 		log.Printf("graceful shutdown failed: %v", err)
 	}
 	log.Println("server stopped")
-}
-
-func loadConfig() Config {
-	return Config{
-		Port:         getEnv("PORT", "8080"),
-		MySQLDSN:     getEnv("MYSQL_DSN", "user:password@tcp(localhost:3306)/dbname?parseTime=true"),
-		RedisAddr:    getEnv("REDIS_ADDR", "localhost:6379"),
-		RedisPass:    os.Getenv("REDIS_PASSWORD"),
-		RedisDB:      0,
-		ReadTimeout:  5 * time.Second,
-		WriteTimeout: 10 * time.Second,
-	}
 }
 
 func setupRouter(app *App) *gin.Engine {
@@ -169,12 +145,4 @@ func setupRouter(app *App) *gin.Engine {
 	})
 
 	return router
-}
-
-func getEnv(key, fallback string) string {
-	val := os.Getenv(key)
-	if val == "" {
-		return fallback
-	}
-	return val
 }
