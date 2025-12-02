@@ -11,8 +11,9 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
 	"github.com/redis/go-redis/v9"
+
+	"stu-go/common"
 )
 
 // Config holds runtime configuration values.
@@ -35,13 +36,13 @@ type App struct {
 func main() {
 	cfg := loadConfig()
 
-	db, err := openMySQL(cfg)
+	db, err := common.OpenMySQL(common.MySQLConfig{DSN: cfg.MySQLDSN})
 	if err != nil {
 		log.Fatalf("failed to connect to MySQL: %v", err)
 	}
 	defer db.Close()
 
-	redisClient, err := openRedis(cfg)
+	redisClient, err := common.OpenRedis(common.RedisConfig{Addr: cfg.RedisAddr, Password: cfg.RedisPass, DB: cfg.RedisDB})
 	if err != nil {
 		log.Fatalf("failed to connect to Redis: %v", err)
 	}
@@ -88,43 +89,6 @@ func loadConfig() Config {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
 	}
-}
-
-func openMySQL(cfg Config) (*sql.DB, error) {
-	db, err := sql.Open("mysql", cfg.MySQLDSN)
-	if err != nil {
-		return nil, err
-	}
-
-	db.SetConnMaxLifetime(time.Hour)
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(25)
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := db.PingContext(ctx); err != nil {
-		db.Close()
-		return nil, err
-	}
-
-	return db, nil
-}
-
-func openRedis(cfg Config) (*redis.Client, error) {
-	client := redis.NewClient(&redis.Options{
-		Addr:     cfg.RedisAddr,
-		Password: cfg.RedisPass,
-		DB:       cfg.RedisDB,
-	})
-
-	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
-	defer cancel()
-	if err := client.Ping(ctx).Err(); err != nil {
-		client.Close()
-		return nil, err
-	}
-
-	return client, nil
 }
 
 func setupRouter(app *App) *gin.Engine {
