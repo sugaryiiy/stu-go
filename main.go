@@ -112,7 +112,7 @@ func setupRouter(app *App) *gin.Engine {
 		defer cancel()
 
 		val, err := app.Redis.Get(ctx, key).Result()
-		if err == redis.Nil {
+		if errors.Is(err, redis.Nil) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "key not found"})
 			return
 		} else if err != nil {
