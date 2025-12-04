@@ -20,8 +20,8 @@ type Config struct {
 func LoadConfig() Config {
 	return Config{
 		Port:         getEnv("PORT", "8080"),
-		MySQLDSN:     getEnv("MYSQL_DSN", "user:password@tcp(localhost:3306)/dbname?parseTime=true"),
-		RedisAddr:    getEnv("REDIS_ADDR", "localhost:6379"),
+		MySQLDSN:     getEnv("MYSQL_DSN", "root:Gu1106..@tcp(121.36.61.64:3306)/mysql?parseTime=true"),
+		RedisAddr:    getEnv("REDIS_ADDR", "121.36.61.64:6379"),
 		RedisPass:    os.Getenv("REDIS_PASSWORD"),
 		RedisDB:      0,
 		ReadTimeout:  5 * time.Second,

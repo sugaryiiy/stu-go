@@ -19,11 +19,11 @@ type MySQLConfig struct {
 
 // OpenMySQL creates a MySQL connection using the provided configuration.
 func OpenMySQL(cfg MySQLConfig) (*sql.DB, error) {
+	println(cfg.DSN)
 	db, err := sql.Open("mysql", cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
-
 	if cfg.ConnMaxLifetime == 0 {
 		cfg.ConnMaxLifetime = time.Hour
 	}
