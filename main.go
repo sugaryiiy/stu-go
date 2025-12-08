@@ -2,16 +2,17 @@ package main
 
 import (
 	"context"
-	"database/sql"
 	"errors"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
+	"stu-go/modules/user"
 	"syscall"
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-xorm/xorm"
 	"github.com/redis/go-redis/v9"
 
 	"stu-go/common"
@@ -19,7 +20,7 @@ import (
 
 // App aggregates shared dependencies for handlers.
 type App struct {
-	DB    *sql.DB
+	DB    *xorm.Engine
 	Redis *redis.Client
 }
 
@@ -71,7 +72,9 @@ func main() {
 
 func setupRouter(app *App) *gin.Engine {
 	router := gin.Default()
-
+	userImpl := user.NewHandler(user.NewRepository(app.DB))
+	routerGroup := router.Group("/api/user/")
+	userImpl.RegisterRoutes(routerGroup)
 	router.GET("/health", func(c *gin.Context) {
 		mysqlStatus := "ok"
 		redisStatus := "ok"
@@ -91,19 +94,6 @@ func setupRouter(app *App) *gin.Engine {
 			"redis": redisStatus,
 			"time":  time.Now().UTC(),
 		})
-	})
-
-	router.GET("/now", func(c *gin.Context) {
-		var current time.Time
-		ctx, cancel := context.WithTimeout(c.Request.Context(), 2*time.Second)
-		defer cancel()
-
-		if err := app.DB.QueryRowContext(ctx, "SELECT NOW()").Scan(&current); err != nil {
-			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-			return
-		}
-
-		c.JSON(http.StatusOK, gin.H{"mysql_time": current})
 	})
 
 	router.GET("/cache/:key", func(c *gin.Context) {

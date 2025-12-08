@@ -2,10 +2,10 @@ package common
 
 import (
 	"context"
-	"database/sql"
 	"time"
 
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/go-xorm/xorm"
 )
 
 // MySQLConfig holds connection settings for a MySQL database.
@@ -18,9 +18,8 @@ type MySQLConfig struct {
 }
 
 // OpenMySQL creates a MySQL connection using the provided configuration.
-func OpenMySQL(cfg MySQLConfig) (*sql.DB, error) {
-	println(cfg.DSN)
-	db, err := sql.Open("mysql", cfg.DSN)
+func OpenMySQL(cfg MySQLConfig) (*xorm.Engine, error) {
+	db, err := xorm.NewEngine("mysql", cfg.DSN)
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +35,8 @@ func OpenMySQL(cfg MySQLConfig) (*sql.DB, error) {
 	if cfg.PingTimeout == 0 {
 		cfg.PingTimeout = 5 * time.Second
 	}
-
+	//日志打印SQL
+	db.ShowSQL(true)
 	db.SetConnMaxLifetime(cfg.ConnMaxLifetime)
 	db.SetMaxOpenConns(cfg.MaxOpenConns)
 	db.SetMaxIdleConns(cfg.MaxIdleConns)
