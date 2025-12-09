@@ -42,7 +42,14 @@ func (r *repository) List() ([]User, error) {
 	}
 	return user.List, nil
 }
-
+func (r *repository) DeleteByUserName(username string) error {
+	_, err := r.db.Exec("delete from user where username=?", username)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
+}
 func NewRepository(db *xorm.Engine) Repository {
 	return &repository{db}
 }
