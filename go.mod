@@ -3,8 +3,8 @@ module stu-go
 go 1.25.1
 
 require (
-	github.com/gin-gonic/gin v1.10.0
-	github.com/go-sql-driver/mysql v1.8.1
+github.com/gin-gonic/gin v1.10.0
+github.com/go-sql-driver/mysql v1.8.1
 	github.com/go-xorm/xorm v0.7.9
 	github.com/redis/go-redis/v9 v9.7.3
 	golang.org/x/net v0.47.0

@@ -11,14 +11,17 @@ type Repository interface {
 	Create(p User) (*User, error)
 	GetByID(id int64) (*User, error)
 	List() ([]User, error)
+	GetByUsername(username string) (*User, error)
 }
 type repository struct {
 	db *xorm.Engine
 }
 
 func (r *repository) Create(p User) (*User, error) {
-	//TODO implement me
-	panic("implement me")
+	if _, err := r.db.Insert(&p); err != nil {
+		return nil, err
+	}
+	return &p, nil
 }
 
 func (r *repository) GetByID(id int64) (*User, error) {
@@ -41,6 +44,18 @@ func (r *repository) List() ([]User, error) {
 		return nil, err
 	}
 	return user.List, nil
+}
+
+func (r *repository) GetByUsername(username string) (*User, error) {
+	user := &User{}
+	has, err := r.db.SQL("select * from user where username=?", username).Get(user)
+	if err != nil {
+		return nil, err
+	}
+	if !has {
+		return nil, errors.New("user not found")
+	}
+	return user, nil
 }
 
 func NewRepository(db *xorm.Engine) Repository {

@@ -14,6 +14,9 @@ type Config struct {
 	RedisDB      int
 	ReadTimeout  time.Duration
 	WriteTimeout time.Duration
+	JWTSecret    string
+	AccessTTL    time.Duration
+	RefreshTTL   time.Duration
 }
 
 // LoadConfig builds a Config instance from environment variables with sensible defaults.
@@ -26,6 +29,9 @@ func LoadConfig() Config {
 		RedisDB:      0,
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 10 * time.Second,
+		JWTSecret:    getEnv("JWT_SECRET", "dev-secret"),
+		AccessTTL:    getEnvDuration("ACCESS_TOKEN_TTL", 15*time.Minute),
+		RefreshTTL:   getEnvDuration("REFRESH_TOKEN_TTL", 24*time.Hour),
 	}
 }
 
@@ -35,4 +41,13 @@ func getEnv(key, fallback string) string {
 		return fallback
 	}
 	return val
+}
+
+func getEnvDuration(key string, fallback time.Duration) time.Duration {
+	if val := os.Getenv(key); val != "" {
+		if d, err := time.ParseDuration(val); err == nil {
+			return d
+		}
+	}
+	return fallback
 }
