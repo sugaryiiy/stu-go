@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: stu-go
+  namespace: stu-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: __MODULE__
+  template:
+    metadata:
+      labels:
+        app: __MODULE__
+    spec:
+      imagePullSecrets:
+        - name: my-registry-secret
+      containers:
+        - name: __MODULE__
+          image: __IMAGE_VERSION__
+          ports:
+            - containerPort: 8080
+          command: ["/stu-go"]
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: __MODULE__
+  namespace: stu-system
+spec:
+  type: NodePort   # 你要用 nodePort 暴露端口，需要加上
+  selector:
+    app: __MODULE__
+  ports:
+    - name: http
+      port: 8080
+      targetPort: 8080   # ✅ 改成容器实际端口
+      nodePort: 30001    # ✅ 固定 NodePort
