@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"stu-go/modules/auth"
 	"stu-go/modules/user"
 	"syscall"
 	"time"
@@ -40,7 +41,7 @@ func main() {
 	defer redisClient.Close()
 
 	app := &App{DB: db, Redis: redisClient}
-	router := setupRouter(app)
+	router := setupRouter(app, cfg)
 
 	srv := &http.Server{
 		Addr:         ":" + cfg.Port,
@@ -70,11 +71,17 @@ func main() {
 	log.Println("server stopped")
 }
 
-func setupRouter(app *App) *gin.Engine {
+func setupRouter(app *App, cfg common.Config) *gin.Engine {
 	router := gin.Default()
-	userImpl := user.NewHandler(user.NewRepository(app.DB))
-	routerGroup := router.Group("/api/user/")
-	userImpl.RegisterRoutes(routerGroup)
+	userService := user.NewRepository(app.DB)
+	userImpl := user.NewHandler(userService)
+	userGroup := router.Group("/api/user")
+	userImpl.RegisterRoutes(userGroup)
+
+	authService := auth.NewJWTService(cfg.JWTSecret, cfg.AccessTTL, cfg.RefreshTTL, userService)
+	authImpl := auth.Handler{Service: authService}
+	authGroup := router.Group("/api/auth")
+	authImpl.RegisterRoutes(authGroup)
 	router.GET("/health", func(c *gin.Context) {
 		mysqlStatus := "ok"
 		redisStatus := "ok"
