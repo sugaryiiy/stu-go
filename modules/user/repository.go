@@ -45,6 +45,11 @@ func (r *repository) DeleteByUserName(username string) error {
 	}
 	return nil
 }
-func NewRepository(db *xorm.Engine) *repository {
-	return &repository{db}
+func (r *repository) Login(user *User) error {
+	_, err := r.db.SQL("select * from user where username=?", user.Username).Get(user)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
 }

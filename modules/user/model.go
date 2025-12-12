@@ -3,7 +3,7 @@ package user
 import "time"
 
 type User struct {
-	ID        int64     `xorm:"pk autoincr 'id'" json:"id"`
+	Id        int64     `xorm:"pk autoincr 'id'" json:"id"`
 	Username  string    `xorm:"varchar(50) unique notnull 'username'" json:"username"`
 	Password  string    `xorm:"varchar(255) notnull 'password'" json:"-"`
 	Salt      string    `xorm:"varchar(50) 'salt'" json:"-"`
@@ -13,4 +13,5 @@ type User struct {
 	CreatedAt time.Time `xorm:"created 'created_at'" json:"createdAt"`
 	UpdatedAt time.Time `xorm:"updated 'updated_at'" json:"updatedAt"`
 	List      []User    `xorm:"-" json:"list,omitempty"`
+	Token     string    `xorm:"- 'token'" json:"token"`
 }

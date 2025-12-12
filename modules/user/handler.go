@@ -22,7 +22,7 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/addUser", h.Create)
 	router.GET("getUser/:id", h.GetByID)
 	router.GET("/getUserList", h.List)
-	router.POST("/login")
+	router.POST("/login", h.Login)
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -66,4 +66,19 @@ func (h *Handler) List(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, users)
+}
+func (h *Handler) Login(c *gin.Context) {
+	u := &User{}
+	err := c.BindJSON(&u)
+	if err != nil {
+		log.Println(err.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+	err = h.service.Login(u)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, u)
 }
