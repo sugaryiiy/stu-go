@@ -22,7 +22,6 @@ func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/addUser", h.Create)
 	router.GET("getUser/:id", h.GetByID)
 	router.GET("/getUserList", h.List)
-	router.POST("/login", h.Login)
 }
 
 func (h *Handler) Create(c *gin.Context) {

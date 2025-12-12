@@ -72,7 +72,10 @@ func main() {
 
 func setupRouter(app *App) *gin.Engine {
 	router := gin.Default()
+	router.Use(gin.Recovery())
 	userImpl := user.NewHandler(app.DB)
+	router.POST("/api/user/login", userImpl.Login)
+	router.Use(common.JWTMiddleware())
 	routerGroup := router.Group("/api/user/")
 	userImpl.RegisterRoutes(routerGroup)
 	router.GET("/health", func(c *gin.Context) {
