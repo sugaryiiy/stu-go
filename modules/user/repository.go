@@ -53,3 +53,11 @@ func (r *repository) GetUserByUserName(user *User) error {
 	}
 	return nil
 }
+func (r *repository) Login(user *User) error {
+	_, err := r.db.SQL("select password from user where username = ?", user.Username).Get(user)
+	if err != nil {
+		log.Println(err.Error())
+		return err
+	}
+	return nil
+}

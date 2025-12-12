@@ -30,7 +30,7 @@ func (s *service) DeleteByUserName(username string) error {
 }
 func (s *service) Login(user *User) error {
 	md5String := common.GetMd5String(user.Password)
-	err := s.repo.GetUserByUserName(user)
+	err := s.repo.Login(user)
 	if err != nil {
 		log.Println(err.Error())
 		return err
