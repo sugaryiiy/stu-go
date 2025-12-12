@@ -1,14 +1,8 @@
 package user
 
 // Service defines user-related business operations.
-type Service interface {
-	Create(u User) (*User, error)
-	GetByID(id int64) (*User, error)
-	List() ([]User, error)
-}
 type service struct {
-	repo       Repository
-	repository repository
+	repo repository
 }
 
 func (s *service) Create(u User) (*User, error) {
@@ -22,6 +16,6 @@ func (s *service) GetByID(id int64) (*User, error) {
 	return s.repo.GetByID(id)
 }
 func (s *service) DeleteByUserName(username string) error {
-	s.repository.DeleteByUserName(username)
+	s.repo.DeleteByUserName(username)
 	return nil
 }

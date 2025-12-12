@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"errors"
 	"log"
 	"net/http"
@@ -13,7 +14,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-xorm/xorm"
 	"github.com/redis/go-redis/v9"
-	"golang.org/x/net/context"
 
 	"stu-go/common"
 )
@@ -72,7 +72,7 @@ func main() {
 
 func setupRouter(app *App) *gin.Engine {
 	router := gin.Default()
-	userImpl := user.NewHandler(user.NewRepository(app.DB))
+	userImpl := user.NewHandler(app.DB)
 	routerGroup := router.Group("/api/user/")
 	userImpl.RegisterRoutes(routerGroup)
 	router.GET("/health", func(c *gin.Context) {

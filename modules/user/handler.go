@@ -6,21 +6,23 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-xorm/xorm"
 )
 
 type Handler struct {
-	Service Service
 	service service
 }
 
-func NewHandler(service Service) *Handler {
-	return &Handler{Service: service}
+func NewHandler(db *xorm.Engine) *Handler {
+	service1 := service{repo: repository{db}}
+	return &Handler{service: service1}
 }
 
 func (h *Handler) RegisterRoutes(router *gin.RouterGroup) {
 	router.POST("/addUser", h.Create)
 	router.GET("getUser/:id", h.GetByID)
 	router.GET("/getUserList", h.List)
+	router.POST("/login")
 }
 
 func (h *Handler) Create(c *gin.Context) {
@@ -30,7 +32,7 @@ func (h *Handler) Create(c *gin.Context) {
 		return
 	}
 
-	newUser, err := h.Service.Create(u)
+	newUser, err := h.service.Create(u)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
@@ -48,7 +50,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 		return
 	}
 
-	user, err := h.Service.GetByID(id)
+	user, err := h.service.GetByID(id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, gin.H{"error": err.Error()})
 		return
@@ -58,7 +60,7 @@ func (h *Handler) GetByID(c *gin.Context) {
 }
 
 func (h *Handler) List(c *gin.Context) {
-	users, err := h.Service.List()
+	users, err := h.service.List()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return

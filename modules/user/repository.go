@@ -7,11 +7,6 @@ import (
 	"github.com/go-xorm/xorm"
 )
 
-type Repository interface {
-	Create(p User) (*User, error)
-	GetByID(id int64) (*User, error)
-	List() ([]User, error)
-}
 type repository struct {
 	db *xorm.Engine
 }
@@ -50,6 +45,6 @@ func (r *repository) DeleteByUserName(username string) error {
 	}
 	return nil
 }
-func NewRepository(db *xorm.Engine) Repository {
+func NewRepository(db *xorm.Engine) *repository {
 	return &repository{db}
 }
