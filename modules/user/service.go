@@ -30,7 +30,7 @@ func (s *service) DeleteByUserName(username string) error {
 }
 func (s *service) Login(user *User) error {
 	md5String := common.GetMd5String(user.Password)
-	err := s.repo.Login(user)
+	err := s.repo.GetUserByUserName(user)
 	if err != nil {
 		log.Println(err.Error())
 		return err
@@ -38,5 +38,10 @@ func (s *service) Login(user *User) error {
 	if user.Password != md5String {
 		return errors.New("密码错误请重新登录")
 	}
+	token, err := common.GenerateToken(user.Id, user.Username)
+	if err != nil {
+		return err
+	}
+	user.Token = token
 	return nil
 }
