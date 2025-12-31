@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/signal"
 	"stu-go/modules/user"
+	"stu-go/modules/utils"
 	"syscall"
 	"time"
 
@@ -75,9 +76,12 @@ func setupRouter(app *App) *gin.Engine {
 	router.Use(gin.Recovery())
 	userImpl := user.NewHandler(app.DB)
 	router.POST("/api/user/login", userImpl.Login)
+	userGroup := router.Group("/api/user/")
+	userImpl.RegisterRoutes(userGroup)
+	utilsHandler := utils.NewHandler(app.DB)
+	utilsGroup := router.Group("/api/utils/")
+	utilsHandler.RegisterRoutes(utilsGroup)
 	router.Use(common.JWTMiddleware())
-	routerGroup := router.Group("/api/user/")
-	userImpl.RegisterRoutes(routerGroup)
 	router.GET("/health", func(c *gin.Context) {
 		mysqlStatus := "ok"
 		redisStatus := "ok"
